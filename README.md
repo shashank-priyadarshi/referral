@@ -14,7 +14,8 @@
 3. Run:
    go mod tidy
    go run ./cmd/server
-
+   
+Request → Middleware → Handler → Service → Parser → Queue → Workers → Email
 ## API
 
 POST /upload
