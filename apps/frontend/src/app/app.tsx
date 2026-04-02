@@ -1,56 +1,38 @@
-// // Uncomment this line to use CSS modules
-// // import styles from './app.module.css';
-// import NxWelcome from "./nx-welcome";
+import { useState, useRef } from "react";
 
-// import { Route, Routes, Link } from 'react-router-dom';
+interface HistoryItem {
+  id: string;
+  name: string;
+  status: string;
+  time: string;
+}
 
-// export function App() {
-//   return (
-//     <div>
-//       <NxWelcome title="@org/frontend"/>
-
-//     {/* START: routes */}
-//     {/* These routes and navigation have been generated for you */}
-//     {/* Feel free to move and update them to fit your needs */}
-//     <br/>
-//     <hr/>
-//     <br/>
-//     <div role="navigation">
-//       <ul>
-//         <li><Link to="/">Home</Link></li>
-//         <li><Link to="/page-2">Page 2</Link></li>
-//       </ul>
-//     </div>
-//     <Routes>
-//       <Route
-//         path="/"
-//         element={
-//           <div>This is the generated root route. <Link to="/page-2">Click here for page 2.</Link></div>
-//         }
-//       />
-//       <Route
-//         path="/page-2"
-//         element={
-//           <div><Link to="/">Click here to go back to root page.</Link></div>
-//         }
-//       />
-//     </Routes>
-//     {/* END: routes */}
-//     </div>
-//   );
-// }
-
-// export default App;
-
-import { useState } from "react";
+interface CardProps {
+  title: string;
+  value: string;
+}
 
 function App() {
-  const [file, setFile] = useState(null);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [history, setHistory] = useState([]);
+  const [file, setFile] = useState<File | null>(null);
+  const [message, setMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (f) => {
+  const handleFile = (f: File | undefined) => {
+    if (!f) return;
+
+    // Validate file type
+    const validTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
+    if (!validTypes.includes(f.type) && !f.name.endsWith(".xlsx")) {
+      setMessage("⚠️ Please select a valid Excel file (.xlsx)");
+      return;
+    }
+
     setFile(f);
     setMessage("");
   };
@@ -67,36 +49,45 @@ function App() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("http://localhost:3000/upload", {
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3000";
+      const res = await fetch(`${apiUrl}/upload`, {
         method: "POST",
         body: formData,
       });
 
-      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(`Upload failed with status: ${res.status}`);
+      }
 
+      const data = await res.json();
       setMessage("✅ " + (data.message || "Processing started"));
 
-      // Fake history update
-      setHistory((prev) => [
-        {
-          name: file.name,
-          status: "Processing",
-          time: new Date().toLocaleTimeString(),
-        },
-        ...prev,
-      ]);
-    } catch {
-      setMessage("❌ Upload failed");
-    }
+      const newHistoryItem: HistoryItem = {
+        id: `${file.name}-${Date.now()}`,
+        name: file.name,
+        status: "Processing",
+        time: new Date().toLocaleTimeString(),
+      };
 
-    setLoading(false);
+      setHistory((prev) => [newHistoryItem, ...prev]);
+    } catch (error) {
+      console.error("Upload error:", error);
+      setMessage("❌ Upload failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={styles.container}>
       {/* Sidebar */}
       <div style={styles.sidebar}>
-        <h2>⚡ Referral</h2>
+        <h2>
+          <span role="img" aria-label="lightning">
+            ⚡
+          </span>
+          Referral
+        </h2>
         <p>Dashboard</p>
         <p>Uploads</p>
         <p>Analytics</p>
@@ -104,7 +95,12 @@ function App() {
 
       {/* Main Content */}
       <div style={styles.main}>
-        <h1>📊 Dashboard</h1>
+        <h1>
+          <span role="img" aria-label="dashboard">
+            📊{" "}
+          </span>{" "}
+          Dashboard
+        </h1>
 
         {/* Stats */}
         <div style={styles.stats}>
@@ -115,22 +111,42 @@ function App() {
 
         {/* Upload Section */}
         <div style={styles.card}>
-          <h3>📤 Upload Excel</h3>
+          <h3>
+            <span role="img" aria-label="upload">
+              📤
+            </span>{" "}
+            Upload Excel
+          </h3>
 
           <div
             style={styles.dropZone}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
-              handleFile(e.dataTransfer.files[0]);
+              const droppedFile = e.dataTransfer.files?.[0];
+              handleFile(droppedFile);
             }}
+            onClick={() => fileInputRef.current?.click()}
           >
-            {file ? <p>📄 {file.name}</p> : <p>Drag & Drop Excel or Click</p>}
+            {file ? (
+              <p>
+                <span role="img" aria-label="file">
+                  📄
+                </span>
+                {file.name}
+              </p>
+            ) : (
+              <p>Drag & Drop Excel or Click</p>
+            )}
 
             <input
+              ref={fileInputRef}
               type="file"
               accept=".xlsx"
-              onChange={(e) => handleFile(e.target.files[0])}
+              onChange={(e) => {
+                const selectedFile = e.target.files?.[0];
+                handleFile(selectedFile);
+              }}
               style={styles.hiddenInput}
             />
           </div>
@@ -144,12 +160,17 @@ function App() {
 
         {/* Activity */}
         <div style={styles.card}>
-          <h3>📜 Recent Activity</h3>
+          <h3>
+            <span role="img" aria-label="activity">
+              📜
+            </span>{" "}
+            Recent Activity
+          </h3>
 
           {history.length === 0 && <p>No uploads yet</p>}
 
-          {history.map((item, i) => (
-            <div key={i} style={styles.activityItem}>
+          {history.map((item) => (
+            <div key={item.id} style={styles.activityItem}>
               <span>{item.name}</span>
               <span>{item.status}</span>
               <span>{item.time}</span>
@@ -161,14 +182,14 @@ function App() {
   );
 }
 
-const Card = ({ title, value }) => (
+const Card = ({ title, value }: CardProps) => (
   <div style={styles.statCard}>
     <h4>{title}</h4>
     <p style={styles.statValue}>{value}</p>
   </div>
 );
 
-const styles = {
+const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: "flex",
     height: "100vh",
@@ -217,7 +238,7 @@ const styles = {
     borderRadius: "10px",
   },
   hiddenInput: {
-    marginTop: "10px",
+    display: "none",
   },
   button: {
     padding: "10px 20px",
