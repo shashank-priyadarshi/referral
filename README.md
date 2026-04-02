@@ -45,3 +45,24 @@ Run `make help` to see all available projects, targets, and commands.
 
 POST /upload  
 GET /health
+
+## Roadmap
+
+referral might transition into
+a full-fledged job management portal for candidates with:
+
+- Resume review using LLM,
+- Keyword extraction from resume,
+- Job scraping off internet based on keywords,
+- Cold reachout for jobs with thread based tracking,
+...and much more.
+
+Development roadmap can be inferenced from [issue tracker](docs/TODO.md).
+
+## Docs
+
+There are no API or dashboard docs available (read required) right now.
+APIs have been listed [above](#api).
+In case dedicated docs are added in future,
+docs will be available inrespective directories
+for [api](docs/api/), [dashboard](docs/dashboard/) and [design](docs/design/).

@@ -1,6 +1,7 @@
 # Tracker
 
 ## Frontend
+
 ### TP1
 
 - [FE]: Template rendering and management from UI
@@ -17,6 +18,7 @@
 - [Tests]: Playwright tests
 
 ## API
+
 ### TP1
 
 - [BE]: Postgres based data storage
