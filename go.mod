@@ -1,4 +1,4 @@
-module referral-app
+module github.com/durgeshPandey-dev/referral
 
 go 1.25.3
 
