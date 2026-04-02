@@ -8,16 +8,16 @@ import (
 	"github.com/durgeshPandey-dev/referral/apps/api/internal/utils"
 	"github.com/durgeshPandey-dev/referral/apps/api/logger"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 func RegisterRoutes(app *fiber.App, svc *service.ReferralService) {
 
-	app.Get("/health", func(c *fiber.Ctx) error {
+	app.Get("/health", func(c fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "ok"})
 	})
 
-	app.Post("/upload", func(c *fiber.Ctx) error {
+	app.Post("/upload", func(c fiber.Ctx) error {
 		ctxVal := c.Locals("ctx")
 		ctx, ok := ctxVal.(context.Context)
 		if !ok {

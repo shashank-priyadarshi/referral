@@ -10,7 +10,7 @@ import (
 	"github.com/durgeshPandey-dev/referral/apps/api/internal/queue"
 	"github.com/durgeshPandey-dev/referral/apps/api/internal/service"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 )
 
 func main() {

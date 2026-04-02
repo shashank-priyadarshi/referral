@@ -6,12 +6,12 @@ import (
 
 	"github.com/durgeshPandey-dev/referral/apps/api/logger"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 )
 
 func RequestMiddleware(timeout time.Duration) fiber.Handler {
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		reqID := uuid.NewString()
 
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
