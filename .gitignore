@@ -5,6 +5,7 @@
 
 .nx
 node_modules
+vendor
 
 tmp
 bin
@@ -12,6 +13,8 @@ build
 cache
 dist
 
+
 vite.config.*.timestamp*
 vitest.config.*.timestamp*
 test-output
+*.kubb

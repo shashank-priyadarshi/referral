@@ -8,36 +8,36 @@ import (
 	"github.com/durgeshPandey-dev/referral/apps/api/logger"
 )
 
-type ReferralService struct {
+type referral struct {
 	queue *queue.Queue
 }
 
-func NewReferralService(q *queue.Queue) *ReferralService {
-	return &ReferralService{queue: q}
+func newReferral(q *queue.Queue) *referral {
+	return &referral{queue: q}
 }
 
-func (s *ReferralService) Process(ctx context.Context, filePath string) error {
-	logger.Info(ctx, "process_started", map[string]interface{}{
+func (s *referral) ProcessReferral(ctx context.Context, filePath string) error {
+	logger.Info(ctx, "process_started", map[string]any{
 		"file_path": filePath,
 	})
 
 	contacts, err := excel.Parse(filePath)
 	if err != nil {
-		logger.Error(ctx, "excel_parse_failed", map[string]interface{}{
+		logger.Error(ctx, "excel_parse_failed", map[string]any{
 			"error":     err,
 			"file_path": filePath,
 		})
 		return err
 	}
 
-	logger.Info(ctx, "excel_parsed", map[string]interface{}{
+	logger.Info(ctx, "excel_parsed", map[string]any{
 		"count": len(contacts),
 	})
 
 	for _, c := range contacts {
 		select {
 		case <-ctx.Done():
-			logger.Warn(ctx, "process_cancelled", map[string]interface{}{
+			logger.Warn(ctx, "process_cancelled", map[string]any{
 				"reason": ctx.Err(),
 			})
 			return ctx.Err()
@@ -48,13 +48,13 @@ func (s *ReferralService) Process(ctx context.Context, filePath string) error {
 				Ctx:     ctx,
 			})
 
-			logger.Info(ctx, "job_enqueued", map[string]interface{}{
+			logger.Info(ctx, "job_enqueued", map[string]any{
 				"email": c.Email,
 			})
 		}
 	}
 
-	logger.Info(ctx, "process_completed", map[string]interface{}{
+	logger.Info(ctx, "process_completed", map[string]any{
 		"total_jobs": len(contacts),
 	})
 

@@ -15,7 +15,8 @@
     ],
     "rootDir": "src",
     "module": "esnext",
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
   },
   "exclude": [
     "out-tsc",
@@ -40,6 +41,7 @@
     "src/**/*.js",
     "src/**/*.jsx",
     "src/**/*.ts",
-    "src/**/*.tsx"
+    "src/**/*.tsx",
+    "src/api/v1/.kubb/**/*.ts"
   ]
 }

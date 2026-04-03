@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { postV1Upload } from "../api/v1";
 
 interface HistoryItem {
   id: string;
@@ -48,34 +49,29 @@ function App() {
     const formData = new FormData();
     formData.append("file", file);
 
-    try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3000";
-      const res = await fetch(`${apiUrl}/upload`, {
-        method: "POST",
-        body: formData,
+    postV1Upload(
+      { file },
+      { baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api" },
+    )
+      .then((data) => {
+        setMessage("✅ " + (data?.message || "Processing started"));
+
+        const newHistoryItem: HistoryItem = {
+          id: `${file.name}-${Date.now()}`,
+          name: file.name,
+          status: "Processing",
+          time: new Date().toLocaleTimeString(),
+        };
+
+        setHistory((prev) => [newHistoryItem, ...prev]);
+      })
+      .catch((e) => {
+        console.error("Upload error:", e);
+        setMessage("❌ Upload failed");
+      })
+      .finally(() => {
+        setLoading(false);
       });
-
-      if (!res.ok) {
-        throw new Error(`Upload failed with status: ${res.status}`);
-      }
-
-      const data = await res.json();
-      setMessage("✅ " + (data.message || "Processing started"));
-
-      const newHistoryItem: HistoryItem = {
-        id: `${file.name}-${Date.now()}`,
-        name: file.name,
-        status: "Processing",
-        time: new Date().toLocaleTimeString(),
-      };
-
-      setHistory((prev) => [newHistoryItem, ...prev]);
-    } catch (error) {
-      console.error("Upload error:", error);
-      setMessage("❌ Upload failed");
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
